@@ -252,19 +252,24 @@
                             <field name="sunday" nolabel="1"/>
                         </div>
                     </div>
-
-                    <group>
-                        <field name="booking_id"/>
-                        <field name="time_from"/>
-                    </group>
-                    <group>
-                        <label for="booking_duration"/>
-                        <div>
-                              <field name="booking_duration" widget="float_time" class="oe_inline"/><span> hours</span>
-                        </div>
-                        <field name="time_to"/>
-                    </group>
+                    
                 </group>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="booking_id"/>
+                            <field name="time_from"/>
+                        </group>
+                        <group>
+                            <label for="booking_duration"/>
+                            <div>
+                                <field name="booking_duration" widget="float_time" class="oe_inline"/><span> hours</span>
+                            </div>
+                            <field name="time_to"/>
+                        </group>
+                    </group>
+                        
+                </sheet>
                 <footer>
                     <button string="Compute Slot" class="oe_highlight" type="object" name="compute_slot"/>
                 </footer>
