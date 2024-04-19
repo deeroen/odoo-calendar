@@ -37,7 +37,9 @@ class CalendarBookingType(models.Model):
     _description = "Online Booking Type"
     _inherit = ['mail.thread', "website.seo.metadata", 'website.published.mixin']
     _order = "sequence"
-
+    
+    company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company, index = True)
+    
     sequence = fields.Integer('Sequence')
     name = fields.Char('Booking Type', required=True, translate=True)
     min_schedule_hours = fields.Float('Schedule before (hours)', required=True, default=1.0)
@@ -67,7 +69,6 @@ class CalendarBookingType(models.Model):
         help="How employees will be assigned to meetings customers book on your website.")
     booking_count = fields.Integer('# Bookings', compute='_compute_booking_count')
     meeting_base_url = fields.Char('Meeting base url')
-
     @api.model
     def find_all_bookings(self):
         bookings = []
@@ -113,11 +114,12 @@ class CalendarBookingType(models.Model):
 
     def action_calendar_meetings(self):
         self.ensure_one()
-        action = self.env.ref('calendar.action_calendar_event').read()[0]
+        action = self.env["ir.actions.actions"]._for_xml_id("calendar.action_calendar_event")
         action['context'] = {
             'default_booking_type_id': self.id,
             'search_default_booking_type_id': self.id
         }
+        
         return action
 
     # --------------------------------------

@@ -166,6 +166,7 @@ class WebsiteCalendar(http.Controller):
                 'country_id': country_id,
                 'mobile': phone,
                 'email': email,
+                'company_id' : booking_type.company_id.id
             })
 
         record_description = (_('Country: %s') + '\n\n' +
