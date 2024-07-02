@@ -314,15 +314,22 @@ class CalendarBookingType(models.Model):
         requested_tz = pytz.timezone(timezone)
         first_day = requested_tz.fromutc(datetime.utcnow() + relativedelta(hours=self.min_schedule_hours))
         last_day = requested_tz.fromutc(datetime.utcnow() + relativedelta(days=self.max_schedule_days))
+        
+        today = requested_tz.fromutc(datetime.utcnow())
+        start = today
+        
+
+        difference = relativedelta(last_day, first_day)
+        months_diff = difference.years * 12 + difference.months
+        if abs(months_diff ) < 1:
+            last_day += relativedelta(months=1)
 
         # Compute available slots (ordered)
         slots = self._slots_generate(first_day.astimezone(appt_tz), last_day.astimezone(appt_tz), timezone)
         if not employee or employee in self.employee_ids:
             self._slots_available(slots, first_day.astimezone(pytz.UTC), last_day.astimezone(pytz.UTC), employee)
 
-        # Compute calendar rendering and inject available slots
-        today = requested_tz.fromutc(datetime.utcnow())
-        start = today
+        # Compute calendar rendering and inject available slots       
         month_dates_calendar = cal.Calendar(0).monthdatescalendar
         months = []
         while (start.year, start.month) <= (last_day.year, last_day.month):
@@ -364,9 +371,10 @@ class CalendarBookingType(models.Model):
 
     def _get_paginated_booking_slots(self, timezone, employee=None, month=0):
         booking_slots = self._get_booking_slots(timezone, employee)
+        print(booking_slots)
         try:
             return [booking_slots[month], booking_slots[month + 1]]
-        except IndexError:
+        except IndexError as e:
             return []
 
     def open_booking_wizard(self):
