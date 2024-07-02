@@ -61,9 +61,30 @@ class CalendarBookingType(models.Model):
     booking_tz = fields.Selection(
         _tz_get, string='Timezone', required=True, default=lambda self: self.env.user.tz,
         help="Timezone where booking take place")
-    employee_ids = fields.Many2many('hr.employee', 'website_calendar_type_employee_rel',
-                                    domain=[('user_id', '!=', False)], string='Employees', 
-                                    default=lambda self: self.env['hr.employee'].search([('user_id', '=', self.env.user.id)]).ids)
+
+    employee_ids = fields.Many2many(
+        'hr.employee', 
+        'website_calendar_type_employee_rel',
+        domain=[('user_id', '!=', False)], 
+        string='Employees', 
+        default=lambda self: self._get_default_employee_ids()
+    )
+
+    @api.model
+    def _get_default_employee_ids(self):
+        # Search for an employee linked to the current user
+        employee = self.env['hr.employee'].search([('user_id', '=', self.env.user.id)], limit=1)
+        
+        # If no employee exists, create one
+        if not employee:
+            employee = self.env['hr.employee'].create({
+                'name': self.env.user.name,
+                'user_id': self.env.user.id,
+                'company_id': self.env.user.company_id.id
+            })
+        
+        return employee.ids
+
     assignation_method = fields.Selection([
         ('random', 'Random'),
         ('chosen', 'Chosen by the Customer')], string='Assignation Method', default='random',
